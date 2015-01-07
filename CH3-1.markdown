@@ -43,4 +43,54 @@ function doSomething(){
 
 ##3.2 关键字和保留字
 
+ECMA-262 描述了一组具有特定用途的关键字
+
+**关键字**
+
+> break do instanceof typeof case else new var catch finally return void continue for switch while debugger* function this with default if throw delete in try 
+
+
+ECMA-262 还描述了另外一组不能用作标识符的保留字
+
+**保留字**
+
+> abstract enum int short boolean export interface static byte extends long super char final native synchronized class float package throws const goto private transient debugger implements protected volatile double import public
+
+
+第 5 版把在非严格模式下运行时的保留字缩减为下列这些:
+
+> class enum extends super const export import 
+
+
+在严格模式下，第 5 版还对以下保留字施加了限制：
+
+> implements package public interface private static let protected yield 
+
+ECMA-262 第 5 版对 eval 和 arguments 还施加了限制。在严格模式下，这两个名字也不能作为标识符或属性名，否则会抛出错误。
+
 ##3.3 变量
+
+``` js
+var message1; //未经初始化的变量，会保存一个特殊的值——undefined
+var message2 = 'hi'; //直接初始化变量
+message2 = 100; //有效，但不推荐
+
+function test1(){
+    var message3 = 'hi'; //局部变量，用var操作符定义的变量成为定义该变量作用域中的局部变量
+}
+test1(); //函数调用时，会创建该变量并赋值；之后变量会被立即销毁
+alert(message3); //错误！
+
+function test2(){
+    message4 = 'hi'; //全局变量，没有var
+}
+test2();
+alert(message4); //'hi'
+```
+
+``` js
+//一条语句定义多个变量，推荐缩进格式
+var message = 'hi',
+    found = false,
+    age = 29;
+```
