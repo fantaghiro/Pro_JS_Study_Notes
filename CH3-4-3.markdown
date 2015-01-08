@@ -1,0 +1,163 @@
+#第三章 基本概念
+
+##3.1 语法
+
+###3.1.1 区分大小写
+
+###3.1.2 标识符
+
+- 标识符就是指变量、函数、属性的名字或者函数的参数
+- 第一个字符必须是一个字母、下划线、美元符号或数字
+- 其他字符可以是字符、下划线、美元符号或数字
+- 标识符中的字母也可以包含扩展的ASCII或Unicode字母字符，但不推荐使用
+- 驼峰写法
+- 关键字、保留字、true、false和null不能用作标识符
+
+###3.1.3 注释
+
+``` js
+//单行注释
+/*
+ * 这是一个多行
+ * （块级）注释
+ */
+```
+
+###3.1.4 严格模式
+
+- 如果要在整个脚本中启用严格模式，可以在顶部添加：“use strict";
+- 也可以对指定函数使用严格模式
+
+``` js
+function doSomething(){
+  "use strict";
+  //函数体
+}
+```
+
+###3.1.5 语句
+
+- 推荐给语句结尾都加上分号
+- 可以使用C风格的语法把多条语句组合到一个代码块中，用{}括起来
+- 条件控制语句（如if），即使只有一条语句，也推荐同花括号括起来
+
+##3.2 关键字和保留字
+
+ECMA-262 描述了一组具有特定用途的关键字
+
+**关键字**
+
+> break do instanceof typeof case else new var catch finally return void continue for switch while debugger* function this with default if throw delete in try 
+
+
+ECMA-262 还描述了另外一组不能用作标识符的保留字
+
+**保留字**
+
+> abstract enum int short boolean export interface static byte extends long super char final native synchronized class float package throws const goto private transient debugger implements protected volatile double import public
+
+
+第 5 版把在非严格模式下运行时的保留字缩减为下列这些:
+
+> class enum extends super const export import 
+
+
+在严格模式下，第 5 版还对以下保留字施加了限制：
+
+> implements package public interface private static let protected yield 
+
+ECMA-262 第 5 版对 eval 和 arguments 还施加了限制。在严格模式下，这两个名字也不能作为标识符或属性名，否则会抛出错误。
+
+##3.3 变量
+
+``` js
+var message1; //未经初始化的变量，会保存一个特殊的值——undefined
+var message2 = 'hi'; //直接初始化变量
+message2 = 100; //有效，但不推荐
+
+function test1(){
+    var message3 = 'hi'; //局部变量，用var操作符定义的变量成为定义该变量作用域中的局部变量
+}
+test1(); //函数调用时，会创建该变量并赋值；之后变量会被立即销毁
+alert(message3); //错误！
+
+function test2(){
+    message4 = 'hi'; //全局变量，没有var
+}
+test2();
+alert(message4); //'hi'
+```
+
+``` js
+//一条语句定义多个变量，推荐缩进格式
+var message = 'hi',
+    found = false,
+    age = 29;
+```
+
+##3.4 数据类型
+
+ECMAScript中有五种简单数据类型：Undefined、Null、Boolean、Number、String；一种复杂数据类型：Object。Object本质上是由一组无序的键值对组成的。
+
+###3.4.1 typeof操作符
+
+typeof操作符返回的永远都是字符串：
+
+- "undefined" —— 如果这个值未定义
+- "boolean" ——如果这个值是布尔值
+- "string" ——如果这个值是字符串
+- ”number" ——如果这个值是数值
+- "object" ——如果这个值是对象或null
+- "function" ——如果这个值是函数
+
+``` js
+var message = "some string"; 
+alert(typeof message);     // "string"  // 注意 typeof 返回的都是字符串类型
+alert(typeof(message));    // "string"  // typeof 操作变量
+alert(typeof 95);          // "number"  // typeof 操作数值字面量
+// typeof 是一个操作符而不是一个函数，因此例子中的圆括号尽管可以使用，但不是必需的。
+
+var a = function(){alert(1)}
+alert(typeof a); //"function" //虽然函数也是一种对象，但是函数尤其特殊性，因此用typeof将function从object中区分出来是有必要的。
+```
+
+> typeof null 会返回 "object"，因为 null 被认为是一个空的对象引用。
+> typeof 正则表达式 在大多数情况下返回 "object"，但是在Safari 5及之前版本、Chrome 7及之前版本会返回 "function"
+
+###3.4.2 Undefined 类型
+
+Undefined类型只有一个值：undefined。在使用var声明变量但未对其加以初始化时，这个变量的值就是undefined。
+
+``` js
+var message;
+alert(message == undefined); //true
+```
+
+上述例子等价于下面的例子：
+
+``` js
+var message = undefined; //单单写 var message 就相当于将undefined赋给了这个变量
+alert(message == undefined); //true
+```
+
+注意，undefined有两个条件：1、用var声明了；2、未对其初始化
+
+``` js
+var message; //变量声明后默认取得undefined值
+
+//var age //该变量并没有被声明，因为在注释里
+alert(message); //"undefined"
+alert(age); //产生错误
+```
+
+对于尚未声明过的变量，只能执行一项操作，就是使用typeof操作符检测其数据类型。如果变量未声明，用typeof来操作，也会返回"undefined"。对未声明的变量执行typeof操作符也同样返回"undefined"
+
+``` js
+var message; // 声明但未初始化，默认获得 undefined 值
+//var age //未声明的变量
+
+alert(typeof message); //"undefined"
+alert(typeof age); //"undefined"
+```
+
+> 即使未初始化的变量会自动被赋予undefined值，但显式地初始化变量依然是明智的选择，如果能做到这一点，那么当typeof操作符返回"undefined"值时，我们就知道被检测的变量还没有被声明，而不是尚未初始化。
