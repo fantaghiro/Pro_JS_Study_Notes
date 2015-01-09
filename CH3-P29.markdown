@@ -161,3 +161,120 @@ alert(typeof age); //"undefined"
 ```
 
 > 即使未初始化的变量会自动被赋予undefined值，但显式地初始化变量依然是明智的选择，如果能做到这一点，那么当typeof操作符返回"undefined"值时，我们就知道被检测的变量还没有被声明，而不是尚未初始化。
+
+###3.4.3 Null类型
+
+Null类型也只有一个值null。null值表示一个空对象指针，因此 typeof null返回的是"object"。
+
+``` js
+var car = null;
+alert(typeof null); //"object"
+```
+
+如果定义的变量准备在将来用于保存对象，那么最好将该变量初始化为 null 而不是其他值。这样，只要直接检查 null 值就可以知道相应的变量是否已经保存了一个对象的引用，如：
+
+``` js
+if (car != null) {
+    //对 car 对象执行某些操作
+}
+```
+
+> 实际上，undefined 值是派生自 null 值的，因此ECMA-262规定对它们的相等性测试要返回true，如：
+
+``` js
+alert(null == undefined); //true
+```
+
+无论什么情况下，都没有必要把一个变量的值显示设置为 undefined，但是只要意在保存对象的变量还没有真正保存对象，就应该明确让该变量保存 null 值。这样不仅可以体现 null 作为空对象指针的惯例，也有助于进一步区分 null 和 undefined 。
+
+###3.4.4 Boolean类型
+
+该类型有两个字面值：true 和 false。注意这两个字面值是区分大小写的。
+
+ECMAScript中所有类型的值都有与这两个Boolean值等价的值，可以通过调用转型函数Boolean()来实现：
+
+``` js
+var message = "Hello world!";
+var messageAsBoolean = Boolean(message);
+```
+
+数据类型 | 转换为 true 的值 | 转换为 false 的值
+:--|:--|:--
+Boolean | true | false
+String | 任何非空字符串 | "" （空字符串）
+Number | 任何非零数字值（包括无穷大） | 0和NaN
+Object | 任何对象 | null
+Undefined | n/a | undefined
+
+这些转换规则对于理解流控制语句（如 if 语句）自动执行相应的 Boolean 转换非常重要，如：
+
+``` js
+var message = "Hello world!";
+if(message){
+    alert("Value is true.");
+}
+//运行上述代码会弹出警告框，因为字符串message被自动转换成了对应的Boolean值(true)。
+```
+
+###3.4.5 Number类型
+
+这种类型使用IEEE754格式来表示整数和浮点数值。
+
+- 十进制整数 `var intNum = 55; //整数`
+- 八进制 `var octalNum1 = 070; //八进制的56`
+    - 八进制字面量的第一位必须是零
+    - 八进制字面量中的数字是 0~7，超出该范围无效
+        - `var octalNum2 = 079; //无效八进制——解析为79`
+        - `var octalNum3 = 08; //无效的八进制——解析为8`
+    - 八进制字面量在严格模式下无效，会导致js引擎抛出错误
+- 十六进制 `var hexNum1 = 0xA; //十六进制的10` 
+    - `var hexNum2 = 0x1f; //十六进制的31`
+    - 十六进制字面值的前两位必须是0x
+    - 后面跟任何十六进制数字0~9、A~F，其中字母大小写皆可
+- 在进行算术计算时，所有以八进制和十六进制表示的数值最终都将被转换成十进制数值。
+
+####1. 浮点数值
+
+数值中必须包含一个小数点，且小数点后面必须至少有一位数字。
+
+``` js
+var floatNum1 = 1.1;
+var floatNum2 = 0.1;
+var float Num3 = .1; //有效，但不推荐
+```
+
+由于浮点数保存需要的内存空间是保存整数值的两倍，因此ECMAScript会不失时机地将浮点数值转换成整数值：
+
+``` js
+var floatNum1 = 1.; //小数点后面没有数字——解析为1
+var floatNum2 = 10.0 //整数——解析为10
+```
+
+对于极大或极小的数值，用e表示法（科学计数法）：
+
+``` js
+var floatNum1 = 3.125e7; //就相当于是 3.123 × 10 ^7 即 31250000
+var floatNum2 = 3e-7; //就是0.0000003
+```
+
+浮点数值的最高精度是17位小数，进行算术计算其精确度远不如整数，如：0.1加0.2的结果不是0.3，而是0.30000000000000004。
+
+``` js
+if (a + b == 0.3) { //不要做这样的测试！
+    alert("You got 0.3."); 
+}
+//如果a、b两个数是0.05和0.25或者0.15和0.15都不会有问题，但是如果两个数是0.1和0.2，那么测试将无法通过。
+```
+
+####2. 数值范围
+
+ECMAScript能够表示的最小数值保存在 Number.MIN_VALUE中，大多数浏览器中这个值为 5e-324，小于这个值就会被自动转换成 -Infinity（负无穷）；最大的值保存在 Number.MAX_VALUE中，大多数浏览器中这个值为 1.7976931348623157e+308，大于它会被转成 Infinity（正无穷）。
+
+如果某次计算反回了正或负的 Infinity 值，那么该值将无法继续参与下一次的计算。可以用 isFinite() 函数确定一个数值是否是有穷的：
+
+``` js
+var result = Number.MAX_VALUE + Number.MAX_VALUE;
+alert(isFinite(result)); //false
+```
+
+> 访问Number.NEGATIVE_INFINITY和Number.POSITIVE_INFINITY也可以得到负和正Infinity的值。可以想见，这两个属性中分别保存着 -Infinity 和 Infinity 。
