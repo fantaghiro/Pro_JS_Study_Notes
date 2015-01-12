@@ -278,3 +278,187 @@ alert(isFinite(result)); //false
 ```
 
 > 访问Number.NEGATIVE_INFINITY和Number.POSITIVE_INFINITY也可以得到负和正Infinity的值。可以想见，这两个属性中分别保存着 -Infinity 和 Infinity 。
+
+####3. NaN
+
+NaN，即非数值（Not a Number）是一个特殊的数值，用于表示一个本来要返回数值的操作数未返回数值的情况。例如，在ECMAScript中，0除以0会返回NaN，不会抛出错误，影响其他代码的执行。（整数除以0得到Infinity；负数除以0得到 -Infinity）
+
+NaN的两个特点：
+
+1. 任何涉及NaN的操作（例如NaN/10）都会返回NaN。
+2. NaN与任何值都不相等，包括NaN本身。例如：`alert(NaN == NaN); //false`
+
+ECMAScript定义了isNaN()函数，来确定参数是否“不是数值”。任何不能被转换为数值的值都会导致这个函数返回true，例如：
+
+``` js
+alert(isNaN(NaN)); //true
+alert(isNaN(10)); //false (10是一个数值)
+alert(isNaN("10")); // false (可以被转换成数值10)
+alert(isNaN("blue")); //true (不能转换成数值)
+alert(isNaN(true)); //false (可以被转换成数值1)
+```
+
+> isNaN()也适用于对象，它会首先调用对象的valueOf()方法，然后确定该方法返回的值是否可以转换为数值。如果不能，则给予这个返回值再调用toString()方法，再测试返回值。
+
+####数值转换
+
+- Number() 函数，可用于任何数据类型
+- parseInt() 函数，专门用于把字符串转换成数值
+- parseFloat() 函数，专门用于把字符串转换成数值
+
+**转型函数Number() 的转换规则**
+
+- 如果是Boolean值，true和false将分别转换为1和0
+- 如果是数字值，知识简单的传入和返回
+- 如果是null值，返回0
+- 如果是undefined，返回NaN。
+- 如果是字符串，则
+    - 如果字符串只包含数字（包含前面带正、负号的情况），则将其转换为十进制数值，即"1"会变成1；"123"会变成123，而"011"会变成11（注意，前导的零被忽略）
+    - 如果字符串中包含有效的浮点格式，如"1.1"，则将会转换为对应的浮点数值（前导零也会被忽略）
+    - 如果字符串中包含有效的十六进制格式，例如"0xf"，则转换为相同大小的十进制整数值
+    - 如果字符串为空（不包含任何字符），则转换为0
+    - 如果字符串中包含上述格式之外的字符，则转换为NaN
+- 如果是对象，则调用对象的valueOf()方法，然后依照前面的规则转换返回的值。如果转换的结果是NaN，则调用对象的toString()方法，然后再次依照前面的规则转换返回的字符串值。
+
+``` js
+var num1 = Number("Hello world!"); //NaN
+var num2 = number(""); //0
+var num3 = Number("000011"); //11
+var num4 = Number(true); //1
+```
+
+**parseInt() 函数**
+
+- 它会忽略字符串前面的空格，直至找到第一个非空格字符串
+- 如果第一个字符不是数字字符或者负号，则返回NaN，例如`alert(parseInt("hi123")); //NaN`
+- 转换空字符串，会返回NaN：`alert(parseInt("")); //NaN`
+- 如果第一个字符是数字字符，则会继续解析第二个字符，直至解析完所有后续字符或者遇到了一个非数字字符。例如：`alert(parseInt("1234blue")); //1234`。又如：`alert(parseInt("22.5")); //22 因为小数点不是有效的数字字符`
+- 也能够识别出各种整数格式，如果字符串以"0x"开头且后跟数字字符，就会当作一个十六进制整数；如果字符串以"0"开头且后跟数字字符，则会当作八进制数来解析。
+
+``` js
+var num1 = parseInt("1234blue"); //1234
+var num2 = parseInt(""); //NaN
+var num3 = parseInt("0xA"); //10 （十六进制数）
+var num4 = parseInt(22.5); //22
+var num5 = parseInt("070"); //56 （八进制数）
+var num6 = parseInt("70"); //70 （十进制数）
+var num7 = parseInt("0xf"); //15 （十六进制数）
+```
+
+> ECMAScript 3 JS引擎与5的JS引擎有区别。`var num = parseInt("070");` 在3中被认为是56（八进制）；在5中认为是70（十进制）
+
+parseInt()函数的第二个参数：转换时使用的基数（即多少进制）：
+
+``` js
+var num = parseInt("0xAF", 16); //175
+var num1 = parseInt("AF", 16); //175 指定了进制之后，字符串前面可以不带"0x"
+var num2 = parseInt("AF"); //NaN
+```
+
+指定基数会影响到转换的输出结果，如：
+
+``` js
+var num1 = parseInt("10", 2); //2 （按二进制解析）
+var num2 = parseInt("10", 8); //8 （按八进制解析）
+var num3 = parseInt("10", 10); //10 （按十进制解析）
+var num4 = parseInt("10", 16); //16 （按十六进制解析）
+```
+
+**parseFloat()函数**
+
+- 从第一个字符（位置0）开始解析每个字符，一直解析到字符串末尾，或者解析到遇见一个无效的浮点数字字符为止。（字符串中第一个小数点是有效的，第二个小数点是无效的），如：`parseFloat("22.34.5"); //22.34`
+- parseFloat()之中会忽略前导的零，它只解析十进制值，它没有第二个参数指定进制。十六进制的字符串始终解析为0，如`parseFloat("0xA"); //0`
+- 如果字符串包含的是一个课解析为整数的数（没有小数点，或者小数点后都是零），那么parseFloat()会返回整数
+
+``` js
+var num1 = parseFloat("1234blue"); //1234 （整数）
+var num2 = parseFloat("0xA"); //0
+var num3 = parseFloat("22.5"); //22.5
+var num4 = parseFloat("22.34.5"); //22.34
+var num5 = parseFloat("0908.5"); //908.5
+var num6 = parseFloat("3.125e7"); //31250000
+```
+
+###3.4.6 String类型
+
+String类型用于表示由零或多个16位Unicode字符组成的字符序列，即字符串。可由双引号（"）或单引号（'）表示。用双引号或单引号表示的字符串完全相同。不过以双引号开头的字符串必须以双引号结尾；以单引号开头的字符串必须以单引号结尾，即左右引号必须匹配。
+
+####1. 字符字面量
+
+字面量 | 含义
+:--|:--
+\n | 换行
+\t | 制表
+\b | 空格
+\r | 回车
+\f | 进纸
+\\ | 斜杠
+\' | 单引号（'），在用单引号表示的字符串中使用，例如：`'He said, \'hey.\''`
+\" | 双引号（"），在用双引号表示的字符串中使用，例如：`"He said, \"hey.\""`
+\xnn | 以十六进制代码nn表示的一个字符（其中n为0~F）。例如，\x41表示"A"
+\unnnn | 以十六进制代码nnnn表示一个Unicode字符（其中n为0~F）。例如，\u03a3表示希腊字符∑
+
+以上这些字符字面量可以出现在字符串中的任意位置，而且也将被作为一个字符来解析。如：
+
+``` js
+var text = "This is the letter sigma: \u03a3.";
+alert(text.length); //输出28
+```
+
+####2. 字符串的特点
+
+ECMAScript中的字符串是不可变的，即字符串一旦创建，它们的值就不能改变。要改变某个变量保存的字符串，首相要销毁原来的字符串，然后再用另一个包含新值的字符串填充该变量。例如：
+
+``` js
+var lang = "Java";
+lang = lang + "Script";
+```
+
+以上示例的实现过程如下：先创建一个能容纳10个字符的新字符串，然后在这个字符串中填空“Java”和“Script”，最后一步是销毁原来的字符串“Java”和字符串“Script”。
+
+####3. 转换为字符串
+
+**方法一：toString()方法**
+
+- 数值、布尔值、对象和字符串值（每个字符串也都有一个toString()方法，该方法返回字符串的一个副本）都有toString()方法
+- null和undefined值没有这个方法，会报错
+- 在调用数值的toString()方法时，可以传递一个参数，输出数值的基数，默认情况下，toString()方法以十进制格式返回数值的字符串表示。
+
+``` js
+var age = 11;
+var ageAsString = age.toString(); //字符串"11"
+var found = true;
+var foundAsString = found.toString(); //字符串"true"
+
+var num = 10;
+alert(num.toString()); //"10"
+alert(num.toString(2)); //"1010"
+alert(num.toString(8)); //"12"
+alert(num.toString(10)); //10
+alert(num.toString(16)); //"a"
+```
+
+**方法二：转型函数String()**
+
+在不知道要转换的值是不是null或undefined的情况下，还可以使用String()，它可以将任何类型的值转换为字符串。规则如下：
+
+- 如果值有toString()方法，则调用该方法（没有参数），并返回相应结果
+- 如果值是null，则返回"null"
+- 如果值是undefined，则返回"undefined"
+
+``` js
+var value1 = 10;
+var value2 = true;
+var value3 = null;
+var value4;
+
+alert(String(value1)); //"10"
+alert(String(value2)); //true;
+alert(String(value3)); "null"
+alert(String(value4)); "undefined"
+```
+
+**方法三：要把某个值转换为字符串，可以使用加号操作符把它与一个字符串("")加在一起
+
+
+
