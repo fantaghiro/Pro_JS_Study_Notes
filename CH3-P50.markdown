@@ -901,3 +901,74 @@ alert(result); //这一行不会执行
 - 如果被除数是有限大的数值而除数是无穷大的数值，则结果是被除数
 - 如果被除数是零，则结果是零
 - 如果有一个操作数不是数值，则在后台调用Number()将其转换为数值，然后再应用上面的规则
+
+###3.5.5 加性操作符
+
+加性操作符也会在后台转换不同的数据类型，且转换规则还比较复杂。
+
+####1. 加法
+
+加法操作符（+）。如果两个操作符都是数值，执行常规的加法计算，然后根据下列规则返回结果：
+
+- 如果两个操作符都是数值，则执行常规的算术加法操作并返回结果
+- 如果有一个操作数是NaN，则结果是NaN
+- 如果是Infinity加Infinity，则结果是Infinity
+- 如果是-Infinity加-Infinity，则结果是-Infinity
+- 如果是Infinity加-Infinity，则结果是NaN
+- 如果是+0加+0，则结果是+0
+- 如果是-0加-0，则结果是-0
+- 如果是+0加-0，则结果是+0
+- 如果两个操作数都是字符串，则将第二个操作数与第一个操作数拼接起来
+- 如果只有一个操作数是字符串，则将另一个操作数转换为字符串，然后再将两个字符串拼接起来
+- 如果有一个操作数是对象、数值或布尔值，则调用它们的toString()方法取得相应的字符串值，然后再应用前面关于字符串的规则
+- 对于undefined和null，分别调用String()函数并取得字符串"undefined"和"null"
+
+``` js
+var result1 = 5 + 5; //两个数值相加
+alert(result1); //10
+var result2 = 5 + "5"; //一个数值和一个字符串相加
+alert(result2); //"55"
+```
+
+常见错误：
+
+``` js
+var num1 = 5;
+var num2 = 10;
+var message = "The sum of 5 and 10 is " + num1 + num2;
+alert(message); //"The sum of 5 and 10 is 510"
+```
+
+应更改为：
+
+``` js
+var num1 = 5;
+var num2 = 10;
+var message = "The sum of 5 and 10 is " + (num1 + num2); //注意这里圆括号的使用
+alert(message); //"The sum of 5 and 10 is 15"
+```
+
+####2. 减法
+
+减法操作符（-），在处理各种数据类型转换时，同样需要遵循一些特殊规则：
+
+- 如果两个操作符都是数值，则执行常规的算术减法操作并返回结果
+- 如果有一个操作数是NaN，则结果是NaN
+- 如果是Infinity减Infinity，则结果是NaN
+- 如果是-Infinity减-Infinity，则结果是NaN
+- 如果是Infinity减-Infinity，则结果是Infinity
+- 如果是-Infinity减Infinity，则结果是-Infinity
+- 如果是+0减+0，则结果是+0
+- 如果是+0减-0，则结果是-0
+- 如果是-0减-0，则结果是+0
+- 如果有一个操作数是字符串、布尔值、null或undefined，则先在后台调用Number()函数将其转换为数值，然后再根据前面的规则执行减法计算。如果转换的结果是NaN，则减法的结果就是NaN
+- 如果有一个操作数是对象，则调用对象的valueOf()方法以取得表示该对象的数值。如果得到的值是NaN，则减法的结果就是NaN。如果对象没有valueOf()方法，则调用其toString()方法并将得到的字符串转换为数值。
+
+``` js
+var result1 = 5 - true; //4，因为true被转换成了1
+var result2 = NaN - 1; //NaN
+var result3 = 5 - 3; //2
+var result4 = 5 - ""; //5，因为""被转换成了0
+var result5 = 5 - "2"; //3， 因为"2"被转换成了2
+var result6 = 5 - null; //5，因为null被转换成了0
+```
