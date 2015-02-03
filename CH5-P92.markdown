@@ -1,0 +1,339 @@
+# 第五章 引用类型
+
+引用类型的值（对象）是引用类型的一个实例。在ECMAScript中，引用类型是一种数据结构，用于将数据和功能组织在一起。它也常被称为类，但这种称呼并不妥当。尽管ECMAScript从技术上讲是一门面向对象的语言，但它不具备传统的面向对象语言所支持的类和接口等基本结构。引用类型有时候也被称为对象定义，因为它们描述的是一类对象所具有的属性和方法。
+
+如前所述，对象是某个特定引用类型的实例。新对象是使用new操作符后跟一个构造函数来创建的。构造函数本身就是一个函数，只不过该函数是出于创建新对象的目的而定义的，如：
+
+``` js
+var person = new Object();
+```
+
+这行代码创建了Object引用类型的一个新实例，然后把该实例保存在了变量person中。使用的构造函数是Object，它只为新对象定义了默认的属性和方法。ECMAScript提供了很多原生引用类型（例如Object），以便开发人员用以实现常见的计算任务。
+
+##5.1 Object类型
+
+创建Object实例的方式有两种。第一种是使用new操作符后跟Object构造函数，如：
+
+``` js
+var person = new Object();
+person.name = "Nicholas";
+person.age = 29;
+```
+
+另一种方式是使用对象字面量表示法。对象字面量是对象定义的一种简写形式，目的在于简化创建包含大量属性的对象的过程，如：
+
+``` js
+var person = {
+    name : "Nicholas",
+    age : 29
+}
+```
+
+在这个例子中，左边的花括号（{）表示对象字面量的开始，因为它出现在了表达式上下文（expression context）中。ECMAScript中的表达式上下文指的是能够返回一个值（表达式）。赋值操作符表示后面是一个值，所以左花括号在这里表示一个表达式的开始。同样的花括号，如果出现在一个语句上下文（statement context）中，例如跟在 if 语句条件的后面，则表示一个语句块的开始。
+
+然后，我们定义了 name 属性，之后是一个冒号，再后面是这个属性的值。在对象字面量中，使用逗号来分隔不同的属性。因此 "Nicholas" 后面是一个逗号。但是，在 age 属性的值29的后面不能添加逗号，因为age是最后一个属性。在最后一个属性后面添加逗号，会在IE7及更早版本和Opera中导致错误。
+
+在使用对象字面量语法时，属性名也可以使用字符串，如：
+
+``` js
+var person = {
+    "name" : "Nicholas",
+    "age" : 29,
+    5 : true
+}
+```
+
+上述例子会创建一个对象，包含三个属性：name、age和5。但这里的数值属性名会自动转换为字符串。
+
+另外，使用对象字面量语法时，如果留空其花括号，则可以定义只包含默认属性和方法的对象，如：
+
+``` js
+var person = {}; //与 new Object() 相同
+person.name = "Nicholas";
+person.age = 29;
+```
+
+这个例子与本节前面的例子是等价的，只不过看起来似乎有点奇怪。关于对象字面量语法，我们推荐只在考虑对象属性名的可读性时使用。
+
+> 在通过对象字面量定义对象时，实际上不会调用Object构造函数（Firefox 2及更早版本会调用Object构造函数；但Firefox 3之后就不会了）
+
+虽然可以使用前面介绍的任何一种方法来定义对象，但开发人员更青睐对象字面量语法，因为这种语法要求的代码量少，而且能够给人封装数据的感觉。实际上，对象字面量也是向函数传递大量可选参数的首选方式，如：
+
+``` js
+function displayInfo(args){
+    var output = "";
+    if(typeof args.name == "string"){
+        output += "Name: " + args.name + "\n";
+    }
+    if(typeof args.age == "number"){
+        output += "Age: " + args.age + "\n";
+    }
+
+    alert(output);
+}
+
+displayInfo({
+    name: "Nicholas",
+    age: 29
+});
+
+displayInfo({
+    name: "Greg"
+});
+```
+
+> 这种传递参数的模式最适合需要向函数传入大量可选参数的情形。一般来讲，命名参数虽然容易处理，但在有多个可选参数的情况下就会显得不够灵活。最好的做法是对那些必需值使用命名参数，而是用对象字面量来封装多个可选参数。
+
+一般来说，访问对象属性时使用的都是点表示法。不过在JS中也可以使用方括号表示法来访问对象的属性。在使用方括号语法时，应该将要访问的属性以字符串的形式放在方括号中，如：
+
+``` js
+alert(person["name"]); //"Nicholas"
+alert(person.name); //"Nicholas"
+```
+
+从功能上看，这两种访问对象属性的方法没有任何区别。但方括号语法的主要优点是可以通过变量来访问属性，如：
+
+``` js
+var propertyName = "name";
+alert(person[propertyName]); //"Nicholas"
+```
+
+如果属性名中包含会导致语法错误的字符或者属性名使用的是关键字或保留字，也可以使用方括号表示法，如：
+
+``` js
+person["first name"] = "Nicholas";
+```
+
+由于"first name”中包含一个空格，所以不能使用点表示法来访问它。然而，属性名中是可以包含非字母非数字的，这时候就可以使用方括号表示法来访问它们。
+
+通常，除非必须使用变量来访问属性，否则我们建议使用点表示法。
+
+##5.2 Array类型
+
+虽然ECMAScript数组与其他语言中的数组都是数据的有序列表，但与其他语言不同的是，ECMAScript数组的每一项可以保存任何类型的数据。即：可以用数组的第一个位置来保存字符串，用第二位置来保存数值，用第三个位置来保存对象，以此类推。同时，ECMAScript数组的大小是可以动态调整的，即可以随着数据的添加自动增长以容纳新增数据。
+
+创建数组的基本方式有两种。第一种是使用Array构造函数，如：`var colors = new Array();`。如果预先知道数组要保存的项目数量，也可以给构造函数传递该数量，而该数量会自动变成length属性的值，如：`var colors = new Array(20);`。也可以向Array构造函数传递数组中应该包含的项，如：`var colors = new Array("red", "blue", "green");`。当然，给构造函数传递一个值也可以创建数组。但这时候问题复杂一点，因为如果传递的是数值，则会按照该数值创建包含给定项数的数组；如果传递的是其他类型的参数，则会创建包含那个值的只有一项的数组，如：
+
+``` js
+var colors = new Array(3); //创建一个包含3项的数组
+var names = new Array("Greg"); //创建一个包含1项，即字符串“Greg”的数组
+```
+
+另外，在使用Array构造函数时也可以省略new操作符，如：
+
+``` js
+var colors = Array(3); //创建一个包含3项的数组
+var names = Array("Greg"); //创建一个包含1项，即字符串“Greg”的数组
+```
+
+创建数组的第二种基本方式是使用数组字面量表示法。如：
+
+``` js
+var colors = ["red", "blue", "green"]; //创建一个包含3个字符串的数组
+var names = []; //创建一个空数组
+var values = [1, 2, ]; //不要这样！这样回创建一个包含2或3项的数组
+var options = [,,,,,]; //不要这样！这样回创建一个包含5或6项的数组
+```
+
+上述例子中的第三行展示了在数组字面量的最后一项添加逗号的结果：在IE中，values会成为一个包含3个项目且每项的值分别为1、2和undefined的数值；在其它浏览器中，values会成为一个包含2项且值分别为1、2的数值。原因是IE8及之前版本中的ECMAScript实现在数组字面量方面存在bug。由于这个bug导致的另一种情况如最后一行代码所示，该行代码可能会创建包含5项的数组（在IE9+、Firefox、Opera、Safari和Chrome中），也可能会创建包含6项的数组（在IE8及更早版本中）。在像这种省略值的情况下，每一项都将获得undefined值；这个结果与调用Array构造函数时传递项数在逻辑上是相同的。但是由于IE的实现与其他浏览器不一致，因此我们强烈建议不要使用这种语法。
+
+> 与对象一样，在使用数组字面量表示法时，也不会调用Array构造函数（Firefox 3及更早版本除外）。
+
+在读取和设置数组的值时，要使用方括号并提供相应值的基于0的数字索引，如：
+
+``` js
+var colors = ["red", "blue", "green"]; //定义一个字符串数组
+alert(colors[0]); //显示第一项
+colors[2] = "black"; //修改第三项
+colors[3] = "brown"; //新增第四项
+```
+
+数组的项数保存在其length属性中，这个属性始终会返回0或更大的值，如：
+
+``` js
+var colors = ["red", "blue", "green"]; //创建一个包含3个字符串的数组
+var names = []; //创建一个空数组
+
+alert(colors.length); //3
+alert(names.length); //0
+```
+
+数组的length属性很有特点——它不是只读的。因此，通过设置这个属性，可以从数组的末尾移除项或向数组中添加新项：
+
+``` js
+var colors = ["red", "blue", "green"]; //创建一个包含3个字符串的数组
+colors.length = 2;
+alert(colors[2]); //undefined
+```
+
+又如：
+
+``` js
+var colors = ["red", "blue", "green"]; //创建一个包含3个字符串的数组
+colors.length = 4;
+alert(colors[3]); //undefined
+```
+
+利用length属性也可以方便地在数组末尾添加新项，如：
+
+``` js
+var colors = ["red", "blue", "green"]; //创建一个包含3个字符串的数组
+colors[colors.length] = "black"; //（在位置3）添加一种颜色
+colors[colors.length] = "brown"; //（在位置4）添加一种颜色
+```
+
+当把一个值放在超出当前数组大小的位置上，数组就会重新计算其长度，即长度值等于最后一项的索引加1，如：
+
+``` js
+var colors = ["red", "blue", "green"]; //创建一个包含3个字符串的数组
+colors[99] = "black";
+alert(colors.length); //100 //（在位置99）添加一种颜色
+```
+
+在上述例子中，位置3到位置98实际上都是不存在的，所以访问它们都将返回undefined。
+
+> 数组最多可以包含 4 294 967 295个项，这几乎已经能够满足任何编程需求了。如果想添加的项数超过这个上限值，就会发生异常。而创建一个初始大小与这个上限值接近的数组，则可能会导致运行时间超长的脚本错误。
+
+###5.2.1 检测数组
+
+自从 ECMAScript 3做出规定以后，就出现了确定某个对象是不是数组的经典问题。对于一个网页，或者一个全局作用域而言，使用 instanceof 操作符就能得到满意的结果：
+
+``` js
+if (value instanceof Array){  
+    //对数组执行某些操作 
+} 
+```
+
+instanceof 操作符的问题在于，它假定只有一个全局执行环境。如果网页中包含多个框架，那实际上就存在两个以上不同的全局执行环境，从而存在两个以上不同版本的 Array 构造函数。如果你从一个框架向另一个框架传入一个数组，那么传入的数组与在第二个框架中原生创建的数组分别具有各自不同的构造函数。
+
+为了解决这个问题，ECMAScript 5新增了 Array.isArray()方法。这个方法的目的是最终确定某个值到底是不是数组，而不管它是在哪个全局执行环境中创建的。这个方法的用法如下：
+
+``` js
+if (Array.isArray(value)){ 
+    //对数组执行某些操作 
+} 
+```
+
+支持 Array.isArray()方法的浏览器有 IE9+、Firefox 4+、Safari 5+、Opera 10.5+和 Chrome。要在尚未实现这个方法中的浏览器中准确检测数组，请参考 22.1.1节。
+
+###5.2.2 转换方法
+
+所有对象都具有 toLocaleString()、toString()和 valueOf()方法。其中，调用数组的 toString()方法会返回由数组中每个值的字符串形式拼接而成的一个以逗号分隔的字符串。而调用 valueOf()返回的还是数组。实际上，为了创建这个字符串会调用数组每一项的 toString()方法，如：
+
+``` js
+var colors = ["red", "blue", "green"]; //创建一个包含3个字符串的数组
+alert(colors.toString()); //red,blue,green
+alert(colors.valueOf()); //red,blue,green
+alert(colors); //red,blue,green
+```
+
+在这里，我们首先显式地调用了 toString()方法，以便返回数组的字符串表示，每个值的字符串表示拼接成了一个字符串，中间以逗号分隔。接着调用 valueOf()方法，而最后一行代码直接将数组传递给了 alert()。由于 alert()要接收字符串参数，所以它会在后台调用 toString()方法，由此会得到与直接调用 toString()方法相同的结果。
+
+
+另外，toLocaleString()方法经常也会返回与 toString()和 valueOf()方法相同的值，但也不总是如此。当调用数组的 toLocaleString()方法时，它也会创建一个数组值的以逗号分隔的字符串。而与前两个方法唯一的不同之处在于，这一次为了取得每一项的值，调用的是每一项的 toLocaleString()方法，而不是 toString()方法。例如：
+
+``` js
+var person1 = {
+    toLocaleString : function(){
+        return "Nikolaos";
+    },
+
+    toString : function(){
+        return "Nicholas";
+    }
+};
+
+var person2 = {
+    toLocaleString : function(){
+        return "Grigorios";
+    },
+
+    toString : function(){
+        return "Greg";
+    }
+};
+
+var people = [person1, person2];
+alert(people); //Nicholas,Greg
+alert(people.toString()); //Nicholas,Greg
+alert(people.toLocaleString()); //Nikolaos,Grigorios
+```
+
+数组继承的toLocaleString()、toString()和valueOf()方法，在默认情况下都会以逗号分隔的字符串的形式返回数组项。而如果使用join()方法，则可以使用不同的分隔符来构建这个字符串。join()方法只接收一个参数，即用作分隔符的字符串，然后返回包含所有数组项的字符串。如：
+
+``` js
+var colors = ["red", "green", "blue"];
+alert(colors.join(",")); //red,green,blue
+alert(colors.join("||")); //red||green||blue
+```
+
+如果不给 join()方法传入任何值，或者给它传入 undefined，则使用逗号作为分隔符。IE7及更早版本会错误的使用字符串"undefined"作为分隔符。
+
+> 如果数组中的某一项的值是 null 或者 undefined，那么该值在 join()、toLocaleString()、toString()和valueOf()方法返回的结果中以空字符串表示。
+
+###5.2.3 栈方法
+
+栈是一种 LIFO（Last-In-First-Out，后进先出）的数据结构，也就是最新添加的项最早被移除。而栈中项的插入（叫做推入）和移除（叫做弹出），只发生在一个位置——栈的顶部。ECMAScript为数组专门提供了 push()和 pop()方法，以便实现类似栈的行为。
+
+push()方法可以接收任意数量的参数，把它们逐个添加到数组末尾，并返回修改后数组的长度。而pop()方法则从数组末尾移除最后一项，减少数组的length值，然后返回移除的项。如：
+
+``` js
+var colors = new Array(); //创建一个数组
+var count = colors.push("red", "green"); //推入两项
+alert(count); //2
+
+count = colors.push("black"); //推入另一项
+alert(count); //3 
+
+var item = colors.pop(); //取得最后一项
+alert(item); //"black"
+alert(colors.length); //2
+```
+
+可以将栈方法与其他数组方法连用，如：
+
+``` js
+var colors = ["red", "blue"];
+colors.push("brown"); //添加另一项
+colors[3] = "black"; //添加另一项
+alert(colors.length); //4
+
+var item = colors.pop(); //取得最后一项
+alert(item); //"black"
+``` 
+
+###5.2.4 队列方法
+
+栈数据结构的访问规则是 LIFO （后进先出），而队列数据结构的访问规则是 FIFO （First-In-First-Out，先进先出）。队列在列表的末端添加项，从列表的前端移除项。实现这一操作的数组方法就是 shift()，它能够移除数组中的第一个项并返回该项，同时将数组长度减 1。结合使用 shift()和 push()方法，可以像使用队列一样使用数组。
+
+``` js
+var colors = new Array(); //创建一个数组
+var count = colors.push("red", "green"); //推入两项
+alert(count); //2
+
+count = colors.push("black"); //推入另一项
+alert(count); //3
+
+var item = colors.shift(); //取得第一项
+alert(item); //"red"
+alert(colors.length); //2
+```
+
+ECMAScript还为数组提供了一个 unshift()方法。顾名思义， unshift()与 shift()的用途相反：它能在数组前端添加任意个项并返回新数组的长度。因此，同时使用 unshift()和 pop()方法，可以从相反的方向来模拟队列，即在数组的前端添加项，从数组末端移除项，如：
+
+``` js
+var colors = new Array(); //创建一个数组
+var count = colors.unshift("red", "green"); //推入两项
+alert(count); //2
+
+count = colors.unshift("black"); //推入另一项
+alert(count); //3
+
+var item = colors.pop();
+alert(item); //"green" //取得最后一项
+alert(colors.length); //2
+```
+
+> IE7及更早版本对 JavaScript的实现中存在一个偏差，其 unshift()方法总是返回 undefined 而不是数组的新长度。IE8在非兼容模式下会返回正确的长度值。
+
+###5.2.5 重排序方法
