@@ -337,3 +337,75 @@ alert(colors.length); //2
 > IE7及更早版本对 JavaScript的实现中存在一个偏差，其 unshift()方法总是返回 undefined 而不是数组的新长度。IE8在非兼容模式下会返回正确的长度值。
 
 ###5.2.5 重排序方法
+
+数组中已经存在两个可以直接用来重排序的方法：reverse()和sort()。
+
+``` js
+var values = [1, 2, 3, 4, 5];
+values.reverse();
+alert(values); //5, 4, 3, 2, 1
+```
+
+在默认情况下，sort()方法按升序排列数组项——即最小的值位于最前面，最大的值排在最后面。为了实现排序，sort()方法会调用每个数组项的toString()转型方法，然后比较得到的字符串，以确定如何排序。即使数组中的每一项都是数值，sort()方法比较的也是字符串，如：
+
+``` js
+var values = [0, 1, 5, 10, 15];
+values.sort();
+alert(values); //0, 1, 10, 15, 5
+```
+
+可见，即使例子中值的顺序没有问题，sort()方法也会根据测试字符串的结果改变原来的顺序。这种排序方式在很多情况下都不是最佳方案。因此，sort()方法可以接收一个比较函数作为参数，以便我们指定哪个值位于哪个值的前面。
+
+比较函数接收两个参数，如果第一个参数应该位于第二个参数之前就返回一个负数，如果两个参数相等则返回0，如果第一个参数应该位于第二个之后则返回一个正数。如：
+
+``` js
+function compare(value1, value2) {
+    if(value1 < value2){
+        return -1;
+    } else if(value1 > value2){
+        return 1;
+    } else {
+        return 0;
+    }
+}
+```
+
+以上这个比较函数可以适用于大多数数据类型，只要将其作为参数传递给sort()方法即可，如：
+
+``` js
+var values = [0, 1, 5, 10, 15];
+values.sort(compare);
+alert(values); //0, 1, 5, 10, 15
+```
+
+也可以通过比较函数产生降序排序的结果，只要交换比较函数返回的值即可：
+
+``` js
+function compare(value1, value2) {
+    if(value1 < value2){
+        return 1;
+    } else if(value1 > value2){
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+var values = [0, 1, 5, 10, 15];
+values.sort(compare);
+alert(values); //15, 10, 5, 1, 0
+```
+
+> reverse()和sort()方法的返回值是经过排序之后的数值。
+
+对于数值类型或者其valueOf()方法会返回数值类型的对象类型，可以使用一个更简单的比较函数。这个函数只要用第二个值减第一个值即可：
+
+``` js
+function compare(value1, value2){
+    return value2 - value1;
+}
+//这个实现的是从大到小排列
+```
+
+###5.2.6 操作方法
+
